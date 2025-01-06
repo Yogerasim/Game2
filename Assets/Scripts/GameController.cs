@@ -32,6 +32,7 @@ public class GameController : MonoBehaviour
         model.OnCellUpdated += view.UpdateCell;
         model.OnScoreUpdated += UpdateScore;
         model.OnGameReset += ResetView;
+        model.OnGameOver += EndGame; // Подписываемся на событие завершения игры
 
         // Инициализация представления
         view.Initialize(columns, rows, GameModel.BALLS, grid);
@@ -63,13 +64,6 @@ public class GameController : MonoBehaviour
         scoreText.text = $"Счёт: {newScore}";
         Debug.Log($"Score updated to: {newScore}");
 
-        // Если счёт отрицательный, завершаем игру
-        if (newScore < 0)
-        {
-            EndGame();
-            return;
-        }
-
         // Обновляем текущий рекорд, если это необходимо
         if (newScore > currentGameHighScore)
         {
@@ -83,7 +77,7 @@ public class GameController : MonoBehaviour
 
         if (gameOverPopup != null)
         {
-            gameOverPopup.SetActive(true); // Сначала активируем попап, чтобы он стал видимым
+            gameOverPopup.SetActive(true); // Активируем попап
 
             Animator animator = gameOverPopup.GetComponent<Animator>();
             if (animator != null)
