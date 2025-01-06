@@ -14265,7 +14265,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3528611871949305523, guid: 5fd411090c9594ed3bea778fe51b0372, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8154514892374954574, guid: 5fd411090c9594ed3bea778fe51b0372, type: 3}
       propertyPath: m_Pivot.x
@@ -15066,7 +15066,6 @@ MonoBehaviour:
   scoreText: {fileID: 1026003955}
   gameOverPopup: {fileID: 398270851}
   currentGameScoreText: {fileID: 546910165}
-  highScoreText: {fileID: 0}
 --- !u!1 &1638482101
 GameObject:
   m_ObjectHideFlags: 0

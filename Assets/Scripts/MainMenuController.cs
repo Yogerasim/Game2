@@ -14,6 +14,7 @@ public class MainMenuController : MonoBehaviour
     private void Start()
     {
         InitializePanels();
+        GameRecordsManager.DebugRecords(); // Отладка записей
     }
 
     private void InitializePanels()
@@ -53,28 +54,30 @@ public class MainMenuController : MonoBehaviour
 
     private void DisplayRecords()
     {
+        // Удаляем старые записи
         foreach (Transform child in recordsContent)
         {
             Destroy(child.gameObject);
         }
 
+        // Загружаем рекорды
         List<int> records = GameRecordsManager.LoadRecords();
 
-        if (records.Count > 0)
-        {
-            highestScoreText.text = $"Лучший счёт за все игры: {GameRecordsManager.GetHighestScore()}";
-        }
-        else
-        {
-            highestScoreText.text = "Лучший счёт за все игры: 0";
-        }
+        // Обновляем текст с лучшим счётом за все игры
+        highestScoreText.text = records.Count > 0
+            ? $"Лучший счёт за все игры: {GameRecordsManager.GetHighestScore()}"
+            : "Лучший счёт за все игры: 0";
 
-        records.Reverse();
-
+        // Формируем список записей с корректной нумерацией
         for (int i = 0; i < records.Count; i++)
         {
+            int gameNumber = i + 1; // Номер игры (от первой до последней)
             GameObject recordEntry = Instantiate(recordPrefab, recordsContent);
-            recordEntry.GetComponent<Text>().text = $"Лучший счёт за игру №{i + 1}: {records[i]}";
+
+            // Вставляем элемент в начало списка
+            recordEntry.transform.SetSiblingIndex(0);
+
+            recordEntry.GetComponent<Text>().text = $"Лучший счёт за игру №{gameNumber}: {records[i]}";
         }
     }
 }

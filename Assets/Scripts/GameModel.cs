@@ -14,7 +14,6 @@ public class GameModel
 
     private int[,] map;
     private int score = 0;
-    private int moveCount = 0;
     private int selectedX = -1;
     private int selectedY = -1;
     private bool isBallSelected = false;
@@ -36,7 +35,6 @@ public class GameModel
         ClearMap();
         AddRandomBalls();
         UpdateScore(10);
-        moveCount = 0;
         OnGameReset?.Invoke();
     }
 
