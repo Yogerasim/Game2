@@ -18,21 +18,11 @@ public class GameView : MonoBehaviour
             buttons[x, y] = parent.GetChild(i).GetComponent<Button>();
         }
     }
-    
+
     public void InitializeSprites(Sprite[] sprites)
     {
-        if (sprites.Length != ballSprites.Length)
-        {
-            Debug.LogError("Sprite array length does not match ball types.");
-            return;
-        }
-
-        for (int i = 0; i < sprites.Length; i++)
-        {
-            ballSprites[i] = sprites[i];
-        }
+        ballSprites = sprites;
     }
-
 
     public void InitializeButtons(GameController controller)
     {
@@ -43,24 +33,19 @@ public class GameView : MonoBehaviour
                 int buttonIndex = j * GameModel.SIZE_X + i;
 
                 buttons[i, j].onClick.RemoveAllListeners();
-                buttons[i, j].onClick.AddListener(() =>
-                {
-                    // Убираем лишнее логирование
-                    controller.OnCellClicked(buttonIndex);
-                });
+                buttons[i, j].onClick.AddListener(() => controller.OnCellClicked(buttonIndex));
             }
         }
     }
 
     public void UpdateCell(int x, int y, int ballType)
     {
-        if (ballType >= 0 && ballType < ballSprites.Length)
-        {
-            buttons[x, y].GetComponent<Image>().sprite = ballSprites[ballType];
-        }
-        else
+        if (ballType < 0 || ballType >= ballSprites.Length)
         {
             Debug.LogError($"Invalid ballType: {ballType}");
+            return;
         }
+
+        buttons[x, y].GetComponent<Image>().sprite = ballSprites[ballType];
     }
 }
