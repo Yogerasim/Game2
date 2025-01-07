@@ -3,22 +3,23 @@ using UnityEngine;
 
 public class GameModel
 {
-    public static int SIZE_X = 10;
-    public static int SIZE_Y = 12;
+    public static int SIZE_X = 10; // По умолчанию 10
+    public static int SIZE_Y = 12; // По умолчанию 12
     public const int BALLS = 7;
-    public const int BASE_BALLS_TO_ADD = 6; // Начальное количество шариков для добавления
+    public const int BASE_BALLS_TO_ADD = 6; // Базовое количество шариков
+    public const int INCREASE_PER_MOVE = 6; // Увеличение количества шариков на каждом ходу
 
     public event Action<int, int, int> OnCellUpdated;
     public event Action<int> OnScoreUpdated;
     public event Action OnGameReset;
-    public event Action OnGameOver; // Событие окончания игры
+    public event Action OnGameOver;
 
     private int[,] map;
     private int score = 0;
-    private int ballsToAdd = BASE_BALLS_TO_ADD; // Количество добавляемых шариков
     private int selectedX = -1;
     private int selectedY = -1;
     private bool isBallSelected = false;
+    private int ballsToAdd = BASE_BALLS_TO_ADD; // Инициализация базового количества шариков
 
     public GameModel()
     {
@@ -35,8 +36,8 @@ public class GameModel
     public void StartGame()
     {
         ClearMap();
-        ballsToAdd = BASE_BALLS_TO_ADD; // Сбрасываем количество добавляемых шариков
-        AddRandomBalls();
+        ballsToAdd = BASE_BALLS_TO_ADD; // Сбрасываем количество шариков до базового значения
+        AddRandomBalls(ballsToAdd);
         UpdateScore(10);
         OnGameReset?.Invoke();
     }
@@ -72,6 +73,7 @@ public class GameModel
     {
         if (selectedX == -1 || selectedY == -1 || map[x, y] != 0) return;
 
+        // Перемещаем шарик
         SetMap(x, y, map[selectedX, selectedY]);
         SetMap(selectedX, selectedY, 0);
 
@@ -88,50 +90,12 @@ public class GameModel
         else
         {
             UpdateScore(score - 4);
-            AddRandomBalls();
-        }
-    }
-
-    private void AddRandomBalls()
-    {
-        int added = 0;
-
-        for (int i = 0; i < ballsToAdd; i++)
-        {
-            if (AddRandomBall())
+            ballsToAdd += INCREASE_PER_MOVE; // Увеличиваем количество добавляемых шариков
+            if (!AddRandomBalls(ballsToAdd))
             {
-                added++;
-            }
-            else
-            {
-                // Если не удалось добавить шарик, поле заполнено
-                OnGameOver?.Invoke();
-                return;
+                OnGameOver?.Invoke(); // Завершаем игру, если поле заполнено
             }
         }
-
-        Debug.Log($"Added {added} random balls.");
-        ballsToAdd += 2; // Увеличиваем количество шариков для следующего хода
-    }
-
-    private bool AddRandomBall()
-    {
-        int x, y;
-        int attempts = 100;
-
-        do
-        {
-            x = UnityEngine.Random.Range(0, SIZE_X);
-            y = UnityEngine.Random.Range(0, SIZE_Y);
-            attempts--;
-
-            if (attempts <= 0) return false;
-        } while (map[x, y] > 0);
-
-        int ballType = UnityEngine.Random.Range(1, BALLS); // Генерация типа шарика от 1 до BALLS - 1
-        SetMap(x, y, ballType);
-
-        return true;
     }
 
     private bool CutLines()
@@ -212,12 +176,6 @@ public class GameModel
     {
         score = newScore;
         OnScoreUpdated?.Invoke(score);
-
-        if (score < 0)
-        {
-            OnGameOver?.Invoke(); // Завершаем игру при отрицательном счёте
-        }
-
         Debug.Log($"Score updated to: {score}");
     }
 
@@ -242,5 +200,38 @@ public class GameModel
                 SetMap(x, y, 0);
             }
         }
+    }
+
+    private bool AddRandomBalls(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            if (!AddRandomBall())
+            {
+                Debug.LogWarning("No more space for new balls.");
+                return false; // Поле заполнено
+            }
+        }
+        return true; // Шарики добавлены успешно
+    }
+
+    private bool AddRandomBall()
+    {
+        int x, y;
+        int attempts = 100;
+
+        do
+        {
+            x = UnityEngine.Random.Range(0, SIZE_X);
+            y = UnityEngine.Random.Range(0, SIZE_Y);
+            attempts--;
+
+            if (attempts <= 0) return false;
+        } while (map[x, y] > 0);
+
+        int ballType = UnityEngine.Random.Range(1, BALLS); // Генерация типа шарика от 1 до BALLS - 1
+        SetMap(x, y, ballType);
+
+        return true;
     }
 }
