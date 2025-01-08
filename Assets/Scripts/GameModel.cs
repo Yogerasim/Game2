@@ -13,19 +13,19 @@ public class GameModel
     public event Action<int> OnScoreUpdated;
     public event Action OnGameReset;
     public event Action OnGameOver;
-
+    
     private int[,] map;
     private int score = 0;
     private int selectedX = -1;
     private int selectedY = -1;
     private bool isBallSelected = false;
     private int ballsToAdd = BASE_BALLS_TO_ADD; // Инициализация базового количества шариков
-
+    
     public GameModel()
     {
         map = new int[SIZE_X, SIZE_Y];
     }
-
+    
     public void SetGridSize(int columns, int rows)
     {
         SIZE_X = columns;
