@@ -3,20 +3,35 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Контроллер игры, управляющий игровой логикой и взаимодействиет между моделью и представлением.
+/// </summary>
 public class GameController : MonoBehaviour
 {
-    private GameModel model;
-    private GameView view;
+    private GameModel model; // Модель игры
+    private GameView view; // Представление игры
 
-    [SerializeField] private Transform grid; // Сетка игрового поля
-    [SerializeField] private Sprite[] ballSprites; // Спрайты шариков
-    [SerializeField] private Text scoreText; // Текст для отображения счёта
-    [SerializeField] private GameObject gameOverPopup; // Попап окончания игры
-    [SerializeField] private Text currentGameScoreText; // Текст текущего рекорда в попапе
+    [SerializeField]
+    private Transform grid; // Сетка игрового поля
 
-    private int currentGameHighScore = 0;
+    [SerializeField]
+    private Sprite[] ballSprites; // Спрайты шариков
+
+    [SerializeField]
+    private Text scoreText; // Текст для отображения текущего счёта
+
+    [SerializeField]
+    private GameObject gameOverPopup; // Попап окончания игры
+
+    [SerializeField]
+    private Text currentGameScoreText; // Текст текущего рекорда в попапе
+
+    private int currentGameHighScore = 0; // Лучший счёт за текущую игру
     private bool isGameOver = false; // Флаг завершения игры
 
+    /// <summary>
+    /// Инициализация контроллера при старте сцены.
+    /// </summary>
     void Start()
     {
         // Инициализация модели и представления
@@ -28,11 +43,11 @@ public class GameController : MonoBehaviour
         int rows = Mathf.CeilToInt((float)grid.childCount / columns);
         model.SetGridSize(columns, rows);
 
-        // Подписка на события
+        // Подписка на события модели
         model.OnCellUpdated += view.UpdateCell;
         model.OnScoreUpdated += UpdateScore;
         model.OnGameReset += ResetView;
-        model.OnGameOver += EndGame; // Подписываемся на событие завершения игры
+        model.OnGameOver += EndGame; // Подписка на событие завершения игры
 
         // Инициализация представления
         view.Initialize(columns, rows, GameModel.BALLS, grid);
@@ -44,11 +59,18 @@ public class GameController : MonoBehaviour
         gameOverPopup.SetActive(false); // Убедимся, что попап скрыт в начале
     }
 
+    /// <summary>
+    /// Возвращает игрока в главное меню.
+    /// </summary>
     public void BackToMainMenu()
     {
-        SceneManager.LoadScene("MainMenu"); // Возвращаемся в главное меню
+        SceneManager.LoadScene("MainMenu"); // Загрузка сцены главного меню
     }
 
+    /// <summary>
+    /// Обрабатывает нажатие на ячейку игрового поля.
+    /// </summary>
+    /// <param name="buttonIndex">Индекс кнопки, на которую нажали.</param>
     public void OnCellClicked(int buttonIndex)
     {
         int x = buttonIndex % GameModel.SIZE_X;
@@ -56,11 +78,15 @@ public class GameController : MonoBehaviour
         model.ClickCell(x, y);
     }
 
+    /// <summary>
+    /// Обновляет текущий счёт и проверяет, достигнут ли конец игры.
+    /// </summary>
+    /// <param name="newScore">Новый текущий счёт.</param>
     private void UpdateScore(int newScore)
     {
-        if (isGameOver) return; // Если игра уже завершена, ничего не делаем
+        if (isGameOver) return; // Если игра завершена, пропускаем
 
-        // Обновляем текст счёта перед проверкой на завершение игры
+        // Обновляем текст счёта
         scoreText.text = $"Счёт: {newScore}";
         Debug.Log($"Score updated to: {newScore}");
 
@@ -71,6 +97,9 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Отображает попап завершения игры с анимацией.
+    /// </summary>
     private IEnumerator ShowGameOverPopup()
     {
         yield return new WaitForEndOfFrame(); // Ждём один кадр перед активацией
@@ -82,7 +111,7 @@ public class GameController : MonoBehaviour
             Animator animator = gameOverPopup.GetComponent<Animator>();
             if (animator != null)
             {
-                animator.SetTrigger("Show"); // Устанавливаем триггер для запуска анимации
+                animator.SetTrigger("Show"); // Запуск анимации попапа
                 Debug.Log("Animation trigger 'Show' set.");
             }
             else
@@ -107,20 +136,26 @@ public class GameController : MonoBehaviour
         Debug.Log("Game Over Popup activation completed.");
     }
 
+    /// <summary>
+    /// Завершает игру, отображает попап завершения и сохраняет текущий рекорд.
+    /// </summary>
     private void EndGame()
     {
-        if (isGameOver) return;
+        if (isGameOver) return; // Проверяем, завершена ли игра
 
-        isGameOver = true;
+        isGameOver = true; // Устанавливаем флаг завершения игры
 
         Debug.Log("Game Over! Starting popup sequence...");
-    
+
         // Сохраняем текущий рекорд
         GameRecordsManager.SaveRecord(currentGameHighScore);
 
         StartCoroutine(ShowGameOverPopup());
     }
 
+    /// <summary>
+    /// Сбрасывает состояние игры и снимает флаг завершения.
+    /// </summary>
     private void ResetView()
     {
         Debug.Log("Game reset!");
