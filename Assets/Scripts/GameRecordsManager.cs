@@ -18,15 +18,13 @@ public static class GameRecordsManager
     public static void SaveRecord(int score)
     {
         List<int> records = LoadRecords();
-        records.Add(score); // Добавляем новый счёт в список
+        records.Add(score);
+        Debug.Log($"Saving record: {score}");
 
-        Debug.Log($"Saving record: {score}"); // Логируем процесс сохранения
-
-        // Сохраняем список рекордов в PlayerPrefs
         PlayerPrefs.SetString(RecordsKey, string.Join(",", records));
         PlayerPrefs.Save();
 
-        Debug.Log($"Current records saved: {string.Join(",", records)}"); // Логируем сохранённые данные
+        Debug.Log($"Current records saved: {string.Join(",", records)}");
     }
 
     /// <summary>
@@ -36,20 +34,24 @@ public static class GameRecordsManager
     public static List<int> LoadRecords()
     {
         string recordsString = PlayerPrefs.GetString(RecordsKey, "");
-        Debug.Log($"Loaded records string: {recordsString}"); // Логируем загруженные данные
+        Debug.Log($"Loaded records string: {recordsString}");
 
-        if (string.IsNullOrEmpty(recordsString)) return new List<int>();
+        if (string.IsNullOrEmpty(recordsString))
+        {
+            Debug.Log("No records found, returning empty list.");
+            return new List<int>();
+        }
 
         List<int> records = new List<int>();
         foreach (string score in recordsString.Split(','))
         {
             if (int.TryParse(score, out int parsedScore))
             {
-                records.Add(parsedScore); // Добавляем валидный счёт в список
+                records.Add(parsedScore);
             }
         }
 
-        Debug.Log($"Loaded records: {string.Join(",", records)}"); // Логируем итоговый список
+        Debug.Log($"Loaded records: {string.Join(",", records)}");
         return records;
     }
 
@@ -80,4 +82,5 @@ public static class GameRecordsManager
         string recordsString = PlayerPrefs.GetString(RecordsKey, "No Records Found");
         Debug.Log($"Current records in PlayerPrefs: {recordsString}");
     }
+    
 }

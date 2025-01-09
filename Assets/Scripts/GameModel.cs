@@ -289,14 +289,20 @@ public class GameModel
 
     /// <summary>
     /// Добавляет указанное количество случайных шариков на поле.
+    /// Завершает игру, если поле полностью заполнено.
     /// </summary>
     /// <param name="count">Количество шариков для добавления.</param>
-    /// <returns>True, если все шарики добавлены успешно, иначе false.</returns>
+    /// <returns>True, если шарики были успешно добавлены; иначе False.</returns>
     private bool AddRandomBalls(int count)
     {
         for (int i = 0; i < count; i++)
         {
-            if (!AddRandomBall()) return false;
+            if (!AddRandomBall())
+            {
+                Debug.LogWarning("Field is full. Ending the game.");
+                OnGameOver?.Invoke(); // Завершаем игру
+                return false;
+            }
         }
         return true;
     }
